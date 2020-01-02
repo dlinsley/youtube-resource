@@ -5,6 +5,8 @@ set -e
 # Parse image name for repo name
 tagStart=$(expr index "$IMAGE_NAME" :)
 repoName=${IMAGE_NAME:0:tagStart-1}
+shortCommit=${SOURCE_COMMIT:0:7}
+
 
 # Tag and push image for each additional tag
 #for tag in {latest,another}; do
@@ -12,6 +14,6 @@ repoName=${IMAGE_NAME:0:tagStart-1}
 #    docker push ${repoName}:${tag}
 #done
 
-docker tag $IMAGE_NAME ${repoName}:$SOURCE_COMMIT
-docker push ${repoName}:$SOURCE_COMMIT
+docker tag $IMAGE_NAME ${repoName}:${shortCommit}
+docker push ${repoName}:${shortCommit}
 
