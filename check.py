@@ -60,7 +60,7 @@ try:
         print(outputFormatter(newerItems))
     else:
         #Getting latest
-        print(json.dumps({'ref': ydl_output.most_recent()}))
+        print(json.dumps([{'ref': ydl_output.most_recent()}]))
 except TypeError:
     #Get latest
     print(outputFormatter([ydl_output.most_recent()]))
