@@ -10,20 +10,31 @@ def outputFormatter(versions):
         toReturn.append({'ref': x})
     return json.dumps(toReturn)
 
-class MyLogger(object):
+class PlaylistLogger(object):
     def __init__(self):
         self.vidlist = []
 
     def debug(self, msg):
         if msg.startswith('{"'):
-            vid = json.loads(msg)
-            self.vidlist.append(vid['id'])
+            playlist = json.loads(msg)
+            ok = False
+            for x in playlist['entries'] :
+                if not ok:
+                    #print(x['id'])
+                    if self.is_ok(x['id']):
+                        ok = True
+                    else:
+                        continue;
+                self.vidlist.append(x['id'])
+        return
 
     def warning(self, msg):
-        print(msg)
+#        print("[WARN] "+msg)
+        return
 
     def error(self, msg):
-        print(msg)
+#        print("[ERROR] "+msg)
+        return
 
     def count(self):
         return len(self.vidlist)
@@ -37,19 +48,59 @@ class MyLogger(object):
         toReturn.reverse()
         return toReturn
 
+    def is_ok(self, item):
+        video_output = VideoLogger()
+        ydl_opts = {
+            'skip_download': True,
+            'logger': video_output,
+            'forcejson': False,
+            'dump_single_json': False,
+            'ignoreerrors': True,
+            'extract_flat': False,
+            'in_playlist': False,
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl2:
+            ydl2.download([item])
+        return video_output.is_ok()
+
+
+class VideoLogger(object):
+    def __init__(self):
+        self.ok = True
+    def debug(self, msg):
+#        print("[DEBUG]" +msg)
+        return
+
+    def warning(self, msg):
+ #       print("[WARN] "+msg)
+        return
+
+    def error(self, msg):
+#        print("[ERROR] "+msg)
+        self.ok = False
+        return
+
+    def is_ok(self):
+        return self.ok
+
+
+
 resource_config = json.load(sys.stdin)
 
-ydl_output = MyLogger()
+ydl_output = PlaylistLogger()
 
-ydl_opts = {
+ydl_opts_playlist = {
     'skip_download': True,
     'logger': ydl_output,
-    'forcejson': True,
-    'ignoreerrors': True,
+    'forcejson': False,
+    'dump_single_json': True,
+    'ignoreerrors': True, 
     'extract_flat': True,
-    'in_playlist': True
+    'in_playlist': True,
 }
-with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+
+
+with youtube_dl.YoutubeDL(ydl_opts_playlist) as ydl:
     ydl.download([resource_config['source']['playlist']])
 
 try:
