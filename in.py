@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import unicode_literals
-import youtube_dl
+import yt_dlp
 import json
 import sys
 import os
@@ -10,15 +10,19 @@ class MyLogger(object):
         self.vidmeta = {}
 
     def debug(self, msg):
-        #print(msg)
         if msg.startswith('{"'):
             self.vidmeta = json.loads(msg)
+            return
+        print('[DEBUG] '+msg, file=sys.stderr)
+        return
 
     def warning(self, msg):
-        print(msg)
+        print('[WARN] '+msg, file=sys.stderr)
+        return
 
     def error(self, msg):
-        print(msg)
+        print('[ERROR] '+msg, file=sys.stderr)
+        return
 
     def get_vid_meta(self):
         toReturn = []
@@ -61,7 +65,11 @@ if 'skip_download' in resource_config['source']:
 if 'format_id' in resource_config['source']:
     ydl_opts['format'] = resource_config['source']['format_id']
 
-with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+exit_code = 0
+with yt_dlp.YoutubeDL(ydl_opts) as ydl:
     ydl.download([resource_config['version']['ref']])
+    if ydl._download_retcode:
+        exit_code = ydl._download_retcode
 
 print(json.dumps({'version': resource_config['version'], 'metadata': ydl_output.get_vid_meta()}))
+sys.exit(exit_code)
