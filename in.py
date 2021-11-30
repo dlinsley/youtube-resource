@@ -27,17 +27,17 @@ class MyLogger(object):
     def get_vid_meta(self):
         toReturn = []
         toReturn.append({'name': 'id','value': self.vidmeta['id']})
-        toReturn.append({'name': 'uploader','value': self.vidmeta['uploader']})
-        toReturn.append({'name': 'title','value': self.vidmeta['title']})
-        toReturn.append({'name': 'duration','value': str(self.vidmeta['duration'])})
-        toReturn.append({'name': 'view_count','value': str(self.vidmeta['view_count'])})
-        toReturn.append({'name': 'like_count','value': str(self.vidmeta['like_count'])})
-        toReturn.append({'name': 'dislike_count','value': str(self.vidmeta['dislike_count'])})
-        toReturn.append({'name': 'average_rating','value': str(self.vidmeta['average_rating'])})
-        toReturn.append({'name': 'width','value': str(self.vidmeta['width'])})
-        toReturn.append({'name': 'height','value': str(self.vidmeta['height'])})
-        toReturn.append({'name': 'fps','value': str(self.vidmeta['fps'])})
-        toReturn.append({'name': 'ext','value': self.vidmeta['ext']})
+        toReturn.append({'name': 'uploader','value': self.vidmeta.get('uploader')})
+        toReturn.append({'name': 'title','value': self.vidmeta.get('title')})
+        toReturn.append({'name': 'duration','value': str(self.vidmeta.get('duration'))})
+        toReturn.append({'name': 'view_count','value': str(self.vidmeta.get('view_count'))})
+        toReturn.append({'name': 'like_count','value': str(self.vidmeta.get('like_count'))})
+        toReturn.append({'name': 'dislike_count','value': str(self.vidmeta.get('dislike_count'))})
+        toReturn.append({'name': 'average_rating','value': str(self.vidmeta.get('average_rating'))})
+        toReturn.append({'name': 'width','value': str(self.vidmeta.get('width'))})
+        toReturn.append({'name': 'height','value': str(self.vidmeta.get('height'))})
+        toReturn.append({'name': 'fps','value': str(self.vidmeta.get('fps'))})
+        toReturn.append({'name': 'ext','value': self.vidmeta.get('ext')})
         return toReturn
 
 destination_dir_str = sys.argv[1]
