@@ -10,24 +10,9 @@ def outputFormatter(versions):
         toReturn.append({'ref': x})
     return json.dumps(toReturn)
 
-class PlaylistLogger(object):
+class PlaylistProcessor(object):
     def __init__(self):
         self.vidlist = []
-
-    def debug(self, msg):
-        if msg.startswith('{"'):
-            self.process_playlist_json(msg)
-            return
-        print("[DEBUG] "+msg, file=sys.stderr)
-        return
-
-    def warning(self, msg):
-        print("[WARN] "+msg, file=sys.stderr)
-        return
-
-    def error(self, msg):
-        print("[ERROR] "+msg, file=sys.stderr)
-        return
 
     def process_playlist_json(self, msg):
         playlist = json.loads(msg)
@@ -56,48 +41,27 @@ class PlaylistLogger(object):
         return toReturn
 
     def is_ok(self, item):
-        video_output = VideoLogger()
         ydl_opts = {
             'skip_download': True,
-            'logger': video_output,
-            'forcejson': False,
-            'dump_single_json': False,
-            'ignoreerrors': True,
+            'logtostderr': True,
+            'ignoreerrors': False,
             'extract_flat': False,
             'in_playlist': False,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl2:
             ydl2.download([item])
-        return video_output.is_ok()
-
-
-class VideoLogger(object):
-    def __init__(self):
-        self.ok = True
-    def debug(self, msg):
-        print("[DEBUG]" +msg, file=sys.stderr)
-        return
-    def warning(self, msg):
-        print("[WARN] "+msg, file=sys.stderr)
-        return
-    def error(self, msg):
-        print("[ERROR] "+msg, file=sys.stderr)
-        self.ok = False
-        return
-    def is_ok(self):
-        return self.ok
+            video_exit_code = ydl2._download_retcode
+        return video_exit_code == 0
 
 resource_config = json.load(sys.stdin)
 
 print("Got Config: "+json.dumps(resource_config), file=sys.stderr)
 
-ydl_output = PlaylistLogger()
+ydl_output = PlaylistProcessor()
 
 ydl_opts_playlist = {
     'skip_download': True,
-    'logger': ydl_output,
-    'forcejson': False,
-    'dump_single_json': True,
+    'logtostderr': True,
     'ignoreerrors': True, 
     'extract_flat': True,
     'in_playlist': True,
@@ -106,9 +70,10 @@ ydl_opts_playlist = {
 exit_code = 0
 
 with yt_dlp.YoutubeDL(ydl_opts_playlist) as ydl:
-    ydl.download([resource_config['source']['playlist']])
+    info = ydl.extract_info(resource_config['source']['playlist'])
     if ydl._download_retcode:
         exit_code = ydl._download_retcode
+    ydl_output.process_playlist_json(json.dumps(ydl.sanitize_info(info)))
 
 try:
     if ('version' in resource_config) and ('ref' in resource_config['version']):
