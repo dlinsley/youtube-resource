@@ -1,0 +1,28 @@
+resources:
+- name: docker-youtube-resource
+  type: docker-image
+  check_every: 4h0m0s
+  source:
+    repository: dlinsley/youtube-resource
+    username: ((docker-user.username))
+    password: ((docker-user.password))
+
+- name: github-youtube-resource
+  type: git
+  check_every: 4h0m0s
+  source:
+    branch: master
+    private_key: ((github-private-key))
+    uri: git@github.com:dlinsley/youtube-resource
+
+jobs:
+- name: build-image
+  plan:
+  - get: github-youtube-resource
+    trigger: true
+  - put: docker-youtube-resource
+    params:
+      build: github-youtube-resource
+      tag_file: github-youtube-resource/.git/short_ref
+  public: true
+  serial: true
