@@ -1,6 +1,3 @@
-[![Docker Automated Build](https://img.shields.io/docker/cloud/automated/dlinsley/youtube-resource.svg)](https://hub.docker.com/r/dlinsley/youtube-resource/)
-[![Docker Build Status](https://img.shields.io/docker/cloud/build/dlinsley/youtube-resource.svg)](https://hub.docker.com/r/dlinsley/youtube-resource/)
-
 # YouTube Resource
 
 [Concourse](https://github.com/concourse/concourse) resource to interact with youtube playlists
