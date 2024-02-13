@@ -35,7 +35,7 @@ os.chdir(destination_dir_str)
 
 ydl_opts = {
     'logtostderr': True,
-    'ignoreerrors': True,
+    'ignoreerrors': False,
     'skip_download': False,
     'format': '137+140'
 }

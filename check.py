@@ -14,13 +14,13 @@ class PlaylistProcessor(object):
     def __init__(self):
         self.vidlist = []
 
-    def process_playlist_json(self, msg):
+    def process_playlist_json(self, msg, format):
         playlist = json.loads(msg)
         ok = False
         for x in playlist['entries']:
             if not ok:
                 # Want to make sure first entry is accessible
-                if self.is_ok(x['id']):
+                if self.is_ok(x['id'], format):
                     ok = True
                 else:
                     # This entry will be skipped because it is not accessible (yet)
@@ -40,13 +40,16 @@ class PlaylistProcessor(object):
         toReturn.reverse()
         return toReturn
 
-    def is_ok(self, item):
+    def is_ok(self, item, format):
+        if format == "":
+            format = "137+140"
         ydl_opts = {
             'skip_download': True,
             'logtostderr': True,
             'ignoreerrors': False,
             'extract_flat': False,
             'in_playlist': False,
+            'format': format
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl2:
             ydl2.download([item])
@@ -73,7 +76,7 @@ with yt_dlp.YoutubeDL(ydl_opts_playlist) as ydl:
     info = ydl.extract_info(resource_config['source']['playlist'])
     if ydl._download_retcode:
         exit_code = ydl._download_retcode
-    ydl_output.process_playlist_json(json.dumps(ydl.sanitize_info(info)))
+    ydl_output.process_playlist_json(json.dumps(ydl.sanitize_info(info)), resource_config['source']['format_id'])
 
 try:
     if ('version' in resource_config) and ('ref' in resource_config['version']):
