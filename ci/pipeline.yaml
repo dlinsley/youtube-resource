@@ -1,11 +1,17 @@
 resources:
 - name: docker-youtube-resource
-  type: docker-image
+  type: registry-image
   check_every: 4h0m0s
   source:
     repository: dlinsley/youtube-resource
     username: ((docker-user.username))
     password: ((docker-user.password))
+- name: oci-build-task
+  type: registry-image
+  source:
+    repository: ((harbor-host))/dockerhub/concourse/oci-build-task
+    username: ((harbor-user.username))
+    password: ((harbor-user.password))
 
 - name: github-youtube-resource
   type: git
@@ -20,9 +26,25 @@ jobs:
   plan:
   - get: github-youtube-resource
     trigger: true
+  - get: oci-build-task
+  - task: build-oci
+    privileged: true
+    image: oci-build-task
+    input_mapping:
+      source: github-youtube-resource
+    config:
+      platform: linux
+      inputs:
+      - name: source
+        path: .
+      outputs:
+      - name: image
+      run:
+        path: build
   - put: docker-youtube-resource
     params:
-      build: github-youtube-resource
-      tag_file: github-youtube-resource/.git/short_ref
+      image: image/image.tar
+      additional_tags: github-youtube-resource/.git/short_ref
   public: true
   serial: true
+
