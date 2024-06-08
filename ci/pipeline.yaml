@@ -1,32 +1,47 @@
 resources:
 - name: docker-youtube-resource
   type: registry-image
-  check_every: 4h0m0s
+  check_every: 4h
   source:
     repository: dlinsley/youtube-resource
     username: ((docker-user.username))
     password: ((docker-user.password))
+- name: docker-python
+  type: registry-image
+  check_every: 4h
+  source:
+    repository: ((harbor-host))/dockerhub/library/python
+    username: ((harbor-user.username))
+    password: ((harbor-user.password))
+    tag: 3.12-slim-bookworm
 - name: oci-build-task
   type: registry-image
+  check_every: 4h
   source:
     repository: ((harbor-host))/dockerhub/concourse/oci-build-task
     username: ((harbor-user.username))
     password: ((harbor-user.password))
-
 - name: github-youtube-resource
   type: git
-  check_every: 4h0m0s
+  check_every: 1h
   source:
     branch: master
     private_key: ((github-private-key))
     uri: git@github.com:dlinsley/youtube-resource
+    ignore_paths:
+    - ci/
 
 jobs:
 - name: build-image
   plan:
-  - get: github-youtube-resource
-    trigger: true
-  - get: oci-build-task
+  - in_parallel:
+    - get: github-youtube-resource
+      trigger: true
+    - get: docker-python
+      trigger: true
+      params:
+        skip_download: true
+    - get: oci-build-task
   - task: build-oci
     privileged: true
     image: oci-build-task
