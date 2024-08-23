@@ -46,7 +46,7 @@ class PlaylistProcessor(object):
         ydl_opts = {
             'skip_download': True,
             'logtostderr': True,
-            'ignoreerrors': False,
+            'ignoreerrors': True,
             'extract_flat': False,
             'in_playlist': False,
             'format': format
