@@ -6,6 +6,7 @@ resources:
     repository: dlinsley/youtube-resource
     username: ((docker-user.username))
     password: ((docker-user.password))
+    tag: latest
 - name: docker-python
   type: registry-image
   check_every: 4h
