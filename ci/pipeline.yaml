@@ -14,7 +14,7 @@ resources:
     repository: ((harbor-host))/dockerhub/library/python
     username: ((harbor-user.username))
     password: ((harbor-user.password))
-    tag: 3.12-slim-bookworm
+    tag: 3.13-slim-trixie
 - name: oci-build-task
   type: registry-image
   check_every: 4h
